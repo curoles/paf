@@ -20,10 +20,17 @@ target_sources(paf
         PafMain.cpp
 )
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 target_compile_options(paf
     PRIVATE
         -Werror
 )
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+target_compile_options(paf
+    PRIVATE
+        /W1 #/Wall #/WX
+)
+endif()
 
 # `target_compile_definitions` adds some preprocessor definitions to our target. In a Projucer
 # project, these might be passed in the 'Preprocessor Definitions' field. JUCE modules also make use
@@ -53,7 +60,7 @@ target_compile_definitions(paf
 # resolved automatically. If you'd generated a binary data target above, you would need to link to
 # it here too.
 
-target_link_libraries(ConsoleAppExample
+target_link_libraries(paf
     PRIVATE
         # PafAppData            # If you'd created a binary data target, you'd link to it here
         juce::juce_core
@@ -61,3 +68,8 @@ target_link_libraries(ConsoleAppExample
         juce::juce_recommended_config_flags
         juce::juce_recommended_warning_flags
 )
+
+#if(MSVC)
+#    target_compile_options(paf PUBLIC "/ZI")
+#    target_link_options(paf PUBLIC "/INCREMENTAL")
+#endif()

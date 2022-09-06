@@ -4,6 +4,7 @@
  * @author    Igor Lesik 2022
  * @copyright Igor Lesik 2022
  */
+#include "JuceHeader.h"
 
 int main(int argc, char* argv[])
 {

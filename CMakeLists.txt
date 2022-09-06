@@ -13,8 +13,15 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(CMAKE_C_FLAGS "-O2 -Wall -Wextra")
-set(CMAKE_CXX_FLAGS "-O2 -Wall -Wextra")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(CMAKE_C_FLAGS "-O2 -Wall -Wextra")
+    set(CMAKE_CXX_FLAGS "-O2 -Wall -Wextra")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set(CMAKE_C_FLAGS "/O2 /Wall")
+    set(CMAKE_CXX_FLAGS "/O2 /Wall")
+#elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+#elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+endif()
 
 include_directories(./src)
 
