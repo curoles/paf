@@ -12,3 +12,12 @@ Clone PAF repo:
 ```shell
 git clone --recurse-submodules https://github.com/curoles/paf.git
 ```
+
+
+Prerequisite Ubuntu:
+
+```
+sudo apt-get install libasound2-dev
+sudo apt-get install libcurl4-openssl-dev
+sudo apt-get install -y libwebkit2gtk-4.0-dev
+```
