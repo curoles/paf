@@ -6,6 +6,8 @@
  */
 #include "JuceHeader.h"
 
+#include "PafApp.h"
+
 static
 void showCommandDetails(
     const juce::ConsoleApplication& cli,
@@ -28,6 +30,8 @@ void showCommandDetails(
 
 int main(int argc, char* argv[])
 {
+    paf::Application app;
+
     juce::ConsoleApplication cli;
  
     cli.addHelpCommand("--help|-h", "Usage:", true);
@@ -37,20 +41,23 @@ int main(int argc, char* argv[])
                       "play <filename|generated-signal>",
                       "Play audio file or generated signal",
                       "Play audio file or generated signal:...",
-                      [] (const auto& args) { printf("play\n"); (void)args;}});
+                      [&app] (const auto& args) { app.play(args); }
+                      });
 
     cli.addCommand({  "generate",
                       "generate --signal <signal-type>",
                       "Generate audio signal",
                       "Generate audio signal:\n"
                       "generate --signal <signal-type> --timeout <timeout> --file <output-file-name>",
-                      [] (const auto& args) { printf("generate\n"); (void)args;}});
+                      [&app] (const auto& args) { app.generate(args); }
+                      });
 
     cli.addCommand({  "help",
                       "help <play|generate>",
                       "Provide details for a command",
                       "Provide details for a command",
-                      [&cli] (const auto& args) { showCommandDetails(cli, args);}});
+                      [&cli] (const auto& args) { showCommandDetails(cli, args);}
+                      });
 
     //app.addCommand ({ "--foo",
     //                  "--foo filename",

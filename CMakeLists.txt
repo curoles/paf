@@ -23,7 +23,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 #elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
 endif()
 
-include_directories(./src)
+include_directories(.)
 
 # Install inside the build directory.
 set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install)
@@ -31,5 +31,5 @@ set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install)
 #enable_testing()
 
 add_subdirectory(JUCE) # we have JUCE as git submodule
-add_subdirectory(src)
+add_subdirectory(paf)
 #add_subdirectory(test)

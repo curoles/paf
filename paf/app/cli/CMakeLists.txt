@@ -17,7 +17,7 @@ juce_generate_juce_header(paf)
 
 target_sources(paf
     PRIVATE
-        PafMain.cpp
+    PafMain.cpp PafApp.cpp
 )
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
