@@ -5,7 +5,13 @@
 
 juce_add_console_app(paf
     PRODUCT_NAME "Play Audio File"  # The name of the final executable, which can differ from the target name
+    COMPANY_NAME "IgorLesik"
 )
+
+#juce_add_modules(
+    #ALIAS_NAMESPACE xxx
+    #${CMAKE_SOURCE_DIR}/3dparty_xxx/modules/xxx
+    #)
 
 # `juce_generate_juce_header` will create a JuceHeader.h for a given target, which will be generated
 # into the build tree. This header should be included with `#include <JuceHeader.h>`. The include
@@ -64,6 +70,8 @@ target_link_libraries(paf
     PRIVATE
         # PafAppData            # If you'd created a binary data target, you'd link to it here
         juce::juce_core
+        juce::juce_audio_basics
+        juce::juce_audio_devices
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_warning_flags
