@@ -24,8 +24,6 @@ void
 paf::Application::
 play(const juce::ArgumentList& args)
 {
-    printf("play...\n");
-
     jassert(args.containsOption("play"));
 
     juce::File file;
@@ -80,6 +78,10 @@ playAudioFile(juce::File& inputFile)
         return;
     }
 
+    printf("Audio device name: %s\n  type: %s\n  sampling rate: %.1f\n  bit depth: %d\n",
+        device->getName().toRawUTF8(), device->getTypeName().toRawUTF8(),
+        device->getCurrentSampleRate(), device->getCurrentBitDepth());
+
     std::unique_ptr<AudioFormatReaderSource> source(
         new AudioFormatReaderSource(formatManager_.createReaderFor(inputFile), true));
     if (source.get() == nullptr) {
@@ -99,6 +101,8 @@ playAudioFile(juce::File& inputFile)
     printf("Player current gain: %.2f\n", player->getGain());
 
     audioManager_.addAudioCallback(player.get());
+
+    printf("playing %s...\n", inputFile.getFileName().toRawUTF8());
 
     while (source->getNextReadPosition() < source->getTotalLength()) {
         Thread::sleep(100);
@@ -126,4 +130,48 @@ generate(const juce::ArgumentList& /*args*/)
     }
 
     paf::Generator generator(std::move(src));
+
+    static const int nrInputChannels = 0;
+    int nrOutputChannels = 2; //FIXME use option
+
+    String report = audioManager_.initialiseWithDefaultDevices(
+        nrInputChannels, nrOutputChannels);
+
+    if (!report.isEmpty()) {
+        printf("Initialization report: '%s'\n", report.toRawUTF8());
+    }
+
+    juce::AudioIODevice* device = audioManager_.getCurrentAudioDevice();
+    if (!device) {
+        printf("Error: can't find output audio device.\n");
+        return;
+    }
+
+    printf("Audio device name: %s\n  type: %s\n  sampling rate: %.1f\n  bit depth: %d\n",
+        device->getName().toRawUTF8(), device->getTypeName().toRawUTF8(),
+        device->getCurrentSampleRate(), device->getCurrentBitDepth());
+
+    generator.source_->prepareToPlay(
+        device->getDefaultBufferSize(),
+        device->getCurrentSampleRate()
+    );
+
+    printf("Player current gain: %.2f\n", generator.player_.getGain());
+
+    audioManager_.addAudioCallback(&generator.player_);
+
+    printf("generating...\n");
+
+    device->start(&generator.player_);
+    Thread::sleep(10000);
+
+    if (1/*!quite*/) {
+        double cpuUsage = audioManager_.getCpuUsage() * 100;
+        printf("CPU usage: %.1f %%\n", cpuUsage);
+    }
+
+    device->stop();
+    device->close();
+
+    audioManager_.closeAudioDevice();
 }

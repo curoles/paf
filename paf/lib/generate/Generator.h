@@ -15,6 +15,7 @@ using GeneratorSource = juce::AudioSource;
 
 class Generator
 {
+public:
     std::unique_ptr<GeneratorSource> source_;
 
     juce::AudioSourcePlayer player_;
