@@ -26,7 +26,7 @@ public:
     void generate(const juce::ArgumentList& args);
 
 private:
-    void playAudioFile();
+    void playAudioFile(juce::File& file);
 };
 
 } // namespace paf

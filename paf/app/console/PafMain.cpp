@@ -45,9 +45,9 @@ void defineCommandLineOptions(
                       });
 
     cli.addCommand({  "play",
-                      "play <filename|generated-signal>",
-                      "Play audio file or generated signal",
-                      "Play audio file or generated signal:...",
+                      "play [filename]",
+                      "Play audio file.",
+                      "Play audio file.",
                       [&app] (const auto& args) { app.play(args); }
                       });
 
@@ -55,9 +55,11 @@ void defineCommandLineOptions(
                       "generate --signal <signal-type>",
                       "Generate audio signal",
                       "Generate audio signal:\n"
-                      "generate --signal <signal-type> --timeout <timeout> --file <output-file-name>",
+                      "generate --signal <signal-type> --duration <time> --file <output-file-name>",
                       [&app] (const auto& args) { app.generate(args); }
                       });
+
+    //cli.addCommand({  "record",
 
     cli.addCommand({  "help",
                       "help <play|generate>",
@@ -65,6 +67,13 @@ void defineCommandLineOptions(
                       "Provide details for a command",
                       [&cli] (const auto& args) { showCommandDetails(cli, args);}
                       });
+
+    cli.addCommand ({ "--file|-f",
+                      "--file|-f <filename>",
+                      "File to play or write to.",
+                      "File to play or write to.",
+                      nullptr});
+
 #if 0
     app.addCommand ({ "--duration|-d",
                       "--duration|-d <time-in-seconds>",
