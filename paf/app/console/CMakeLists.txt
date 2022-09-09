@@ -72,6 +72,7 @@ target_link_libraries(paf
         juce::juce_core
         juce::juce_audio_basics
         juce::juce_audio_devices
+        juce::juce_audio_formats
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_warning_flags

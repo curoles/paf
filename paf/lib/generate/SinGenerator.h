@@ -3,6 +3,8 @@
  * @brief     Sine wave generator.
  * @author    Igor Lesik 2022
  * @copyright Igor Lesik 2022
+ *
+ * @see https://docs.juce.com/master/classToneGeneratorAudioSource.html
  */
 #pragma once
 
@@ -32,6 +34,15 @@ public:
     void getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) override {
         toneGen_.getNextAudioBlock(bufferToFill);
     }
+
+    void setAmplitude(float newAmplitude) {
+        toneGen_.setAmplitude(newAmplitude);
+    }
+
+    void setFrequency(double newFrequencyHz) {
+        toneGen_.setFrequency(newFrequencyHz);
+    }
+
 };
 
 

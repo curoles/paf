@@ -28,14 +28,21 @@ void showCommandDetails(
     }
 }
 
-int main(int argc, char* argv[])
+static
+void defineCommandLineOptions(
+    juce::ConsoleApplication& cli,
+    paf::Application& app
+)
 {
-    paf::Application app;
-
-    juce::ConsoleApplication cli;
- 
     cli.addHelpCommand("--help|-h", "Usage:", true);
     cli.addVersionCommand("--version|-v", "PAF version 0.0.1");
+
+    cli.addCommand({  "test",
+                      "test",
+                      "Test sound",
+                      "Play a beep through the current audio device.",
+                      [&app] (const auto& args) { app.test(args); }
+                      });
 
     cli.addCommand({  "play",
                       "play <filename|generated-signal>",
@@ -58,11 +65,50 @@ int main(int argc, char* argv[])
                       "Provide details for a command",
                       [&cli] (const auto& args) { showCommandDetails(cli, args);}
                       });
+#if 0
+    app.addCommand ({ "--duration|-d",
+                      "--duration|-d <time-in-seconds>",
+                      "Interrupt after number of seconds",
+                      "Interrupt playing, recording or generating after number of seconds. "
+                      "A value of zero means infinity. The default is zero, so if this option is "
+                      "omitted then the process will run until it is killed or naturally ends.",
+                      [&app] (const auto& args) { app.setDuration(args); }});
 
-    //app.addCommand ({ "--foo",
-    //                  "--foo filename",
-    //                  "Performs a foo operation on the given file",
-    //                  [] (const auto& args) { doFoo (args); }});
+    app.addCommand ({ "--channels|-c",
+                      "--channels|-c <number-of-channels>",
+                      "The number of channels.",
+                      "The number of channels. The default is one channel. Valid values are 1 through ?.",
+                      [&app] (const auto& args) { app.setNrChannels(args); }});
+
+    app.addCommand ({ "--rate|-r",
+                      "--rate|-r <sampling-rate-in-Hz>",
+                      "Sampling rate in Hz.",
+                      "Sampling rate in Hz.",
+                      [&app] (const auto& args) { app.setSamplingRate(args); }});
+
+    app.addCommand ({ "--file-type|-t",
+                      "--file-type|-t <file-type>",
+                      "File type TODO LIST.",
+                      "File type TODO LIST. Default is ?. "
+                      "File extention is used by default.",
+                      [&app] (const auto& args) { app.setSamplingRate(args); }});
+
+    //--gain|g
+    //--list-devices|l
+    //--device|D
+    //--list-pcms|L
+    //sample format? see aplay
+#endif
+
+}
+
+int main(int argc, char* argv[])
+{
+    paf::Application app;
+
+    juce::ConsoleApplication cli;
+ 
+    defineCommandLineOptions(cli, app);
  
     return cli.findAndRunCommand(
         juce::ArgumentList(argc, argv),
