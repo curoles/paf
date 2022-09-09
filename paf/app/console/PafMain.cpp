@@ -40,22 +40,23 @@ void defineCommandLineOptions(
     cli.addCommand({  "test",
                       "test",
                       "Test sound",
-                      "Play a beep through the current audio device.",
+                      "Play a beep through the current audio device. "
+                      "Use --duration|-d to provide time.",
                       [&app] (const auto& args) { app.test(args); }
                       });
 
     cli.addCommand({  "play",
                       "play [filename]",
-                      "Play audio file.",
+                      "Play audio file",
                       "Play audio file.",
                       [&app] (const auto& args) { app.play(args); }
                       });
 
     cli.addCommand({  "generate",
-                      "generate --signal <signal-type>",
+                      "generate --signal <type>",
                       "Generate audio signal",
                       "Generate audio signal:\n"
-                      "generate --signal <signal-type> --duration <time> --file <output-file-name>",
+                      "generate --signal <type> --duration <time> --file <output-file-name>",
                       [&app] (const auto& args) { app.generate(args); }
                       });
 
@@ -70,7 +71,7 @@ void defineCommandLineOptions(
 
     cli.addCommand ({ "--file|-f",
                       "--file|-f <filename>",
-                      "File to play or write to.",
+                      "File to play or write to",
                       "File to play or write to.",
                       nullptr});
 

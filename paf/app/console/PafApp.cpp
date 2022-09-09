@@ -6,6 +6,8 @@
  */
 #include "PafApp.h"
 
+#include <juce_audio_utils/juce_audio_utils.h>
+
 #include "paf/lib/generate/Generator.h"
 #include "paf/lib/generate/GeneratorFactory.h"
 
@@ -15,9 +17,24 @@ void
 paf::Application::
 test(const juce::ArgumentList& /*args*/)
 {
+    audioManager_.initialiseWithDefaultDevices(0, 2);
+    juce::AudioIODevice* device = audioManager_.getCurrentAudioDevice();
+    if (!device) {
+        printf("Error: can't find output audio device.\n");
+        return;
+    }
+
+    SoundPlayer player;
+    audioManager_.addAudioCallback(&player);
+
     printf("testing sound...");
     audioManager_.playTestSound();
+    Thread::sleep(2000);
     printf("DONE\n");
+
+    device->stop();
+    device->close();
+    audioManager_.closeAudioDevice();
 }
 
 void
