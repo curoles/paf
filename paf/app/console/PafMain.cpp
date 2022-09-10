@@ -66,8 +66,14 @@ void defineCommandLineOptions(
                       "help <play|generate>",
                       "Provide details for a command",
                       "Provide details for a command",
-                      [&cli] (const auto& args) { showCommandDetails(cli, args);}
+                      [&cli] (const auto& args) { showCommandDetails(cli, args); }
                       });
+
+    cli.addCommand ({ "--quiet|-q",
+                      "--quiet|-q",
+                      "Quiet mode, no diagnostic messages",
+                      "Do not show diagnostic messages.",
+                      nullptr});
 
     cli.addCommand ({ "--file|-f",
                       "--file|-f <filename>",
@@ -75,15 +81,16 @@ void defineCommandLineOptions(
                       "File to play or write to.",
                       nullptr});
 
-#if 0
-    app.addCommand ({ "--duration|-d",
-                      "--duration|-d <time-in-seconds>",
+
+    cli.addCommand ({ "--duration|-d",
+                      "--duration|-d <sec>",
                       "Interrupt after number of seconds",
-                      "Interrupt playing, recording or generating after number of seconds. "
+                      "Interrupt playing, recording or generating after number of seconds"
                       "A value of zero means infinity. The default is zero, so if this option is "
                       "omitted then the process will run until it is killed or naturally ends.",
-                      [&app] (const auto& args) { app.setDuration(args); }});
+                      nullptr});
 
+#if 0
     app.addCommand ({ "--channels|-c",
                       "--channels|-c <number-of-channels>",
                       "The number of channels.",
@@ -119,7 +126,7 @@ int main(int argc, char* argv[])
     juce::ConsoleApplication cli;
  
     defineCommandLineOptions(cli, app);
- 
+
     return cli.findAndRunCommand(
         juce::ArgumentList(argc, argv),
         /*optionMustBeFirstArg=*/true);

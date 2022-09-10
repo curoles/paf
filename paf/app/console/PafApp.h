@@ -10,10 +10,20 @@
 
 namespace paf {
 
+struct AppOptions
+{
+    unsigned long durationMs{0};
+};
+
 class Application
 {
     juce::AudioDeviceManager audioManager_;
     juce::AudioFormatManager formatManager_;
+
+    /// Quite mode, do not show diagnostic messages.
+    bool quiet_{false};
+
+    AppOptions option_;
 
 public:
     Application()
@@ -25,8 +35,16 @@ public:
     void play(const juce::ArgumentList& args);
     void generate(const juce::ArgumentList& args);
 
+    void setQuietMode(bool newMode=true) {
+        quiet_ = newMode;
+    }
+
 private:
     void playAudioFile(juce::File& file);
+
+    void collectOptionsForTest(const juce::ArgumentList& args);
+    void collectOptionsForPlay(const juce::ArgumentList& args);
+    void collectOptionsForGenerate(const juce::ArgumentList& args);
 };
 
 } // namespace paf

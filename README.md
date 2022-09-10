@@ -1,18 +1,43 @@
-PAF is a collection of cross-platform audio tools and VST plugins.
+# Introduction
+
+***PAF*** is a collection of cross-platform audio tools and VST plugins.
 
 - `paf` is a command-line soundfile player, recorder and signal generator;
-  similar to [aplay and arecord](https://linux.die.net/man/1/aplay).
+  it is similar to [aplay and arecord](https://linux.die.net/man/1/aplay).
+- `player` is GUI application to play audio files.
+- `recorder` is GUI application to record sound.
+- `generator` is GUI application to generate audio signals.
 
-# `paf` command-line soundfile player, recorder and signal generator
+# `paf` Command-line Tool
 
-## Test
+`paf` command-line application is soundfile player, recorder and signal generator.
 
-## Play
+## Test Sound
 
-## Generate
+Play a beep using default audio output device.
 
-## Record
+```shell
+paf test               # default is 3 sec
+paf test --duration=5  # set duration of the beep
+```
 
+## Play Audio File
+
+```shell
+paf play <filename>
+```
+
+## Generate audio signal
+
+```shell
+paf generate
+```
+
+## Record sond
+
+```shell
+paf record
+```
 
 
 

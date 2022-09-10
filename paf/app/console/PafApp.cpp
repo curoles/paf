@@ -15,8 +15,10 @@ using namespace paf;
 
 void
 paf::Application::
-test(const juce::ArgumentList& /*args*/)
+test(const juce::ArgumentList& args)
 {
+    collectOptionsForTest(args);
+
     audioManager_.initialiseWithDefaultDevices(0, 2);
     juce::AudioIODevice* device = audioManager_.getCurrentAudioDevice();
     if (!device) {
@@ -29,7 +31,7 @@ test(const juce::ArgumentList& /*args*/)
 
     printf("testing sound...");
     audioManager_.playTestSound();
-    Thread::sleep(2000);
+    Thread::sleep(option_.durationMs);
     printf("DONE\n");
 
     device->stop();
@@ -41,7 +43,7 @@ void
 paf::Application::
 play(const juce::ArgumentList& args)
 {
-    jassert(args.containsOption("play"));
+    collectOptionsForPlay(args);
 
     juce::File file;
     String filename;
@@ -68,7 +70,9 @@ play(const juce::ArgumentList& args)
         return;
     }
 
-    printf("Audio file format: %s\n", fmt->getFormatName().toRawUTF8());
+    if (!quiet_) {
+        printf("Audio file format: %s\n", fmt->getFormatName().toRawUTF8());
+    }
 
     playAudioFile(file);
 
@@ -95,9 +99,11 @@ playAudioFile(juce::File& inputFile)
         return;
     }
 
-    printf("Audio device name: %s\n  type: %s\n  sampling rate: %.1f\n  bit depth: %d\n",
-        device->getName().toRawUTF8(), device->getTypeName().toRawUTF8(),
-        device->getCurrentSampleRate(), device->getCurrentBitDepth());
+    if (!quiet_) {
+        printf("Audio device name: %s\n  type: %s\n  sampling rate: %.1f\n  bit depth: %d\n",
+            device->getName().toRawUTF8(), device->getTypeName().toRawUTF8(),
+            device->getCurrentSampleRate(), device->getCurrentBitDepth());
+    }
 
     std::unique_ptr<AudioFormatReaderSource> source(
         new AudioFormatReaderSource(formatManager_.createReaderFor(inputFile), true));
@@ -115,7 +121,9 @@ playAudioFile(juce::File& inputFile)
     std::unique_ptr<AudioSourcePlayer> player(new AudioSourcePlayer());
     player->setSource(source.get());
 
-    printf("Player current gain: %.2f\n", player->getGain());
+    if (!quiet_) {
+        printf("Player current gain: %.2f\n", player->getGain());
+    }
 
     audioManager_.addAudioCallback(player.get());
 
@@ -125,7 +133,7 @@ playAudioFile(juce::File& inputFile)
         Thread::sleep(100);
     }
 
-    if (1/*!quite*/) {
+    if (!quiet_) {
         double cpuUsage = audioManager_.getCpuUsage() * 100;
         printf("CPU usage: %.1f %%\n", cpuUsage);
     }
@@ -136,9 +144,9 @@ playAudioFile(juce::File& inputFile)
 
 void
 paf::Application::
-generate(const juce::ArgumentList& /*args*/)
+generate(const juce::ArgumentList& args)
 {
-    printf("generate...\n");
+    collectOptionsForGenerate(args);
 
     auto src = paf::GeneratorFactory::make(paf::GeneratorFactory::SIN);
     if (src.get() == nullptr) {
@@ -164,25 +172,29 @@ generate(const juce::ArgumentList& /*args*/)
         return;
     }
 
-    printf("Audio device name: %s\n  type: %s\n  sampling rate: %.1f\n  bit depth: %d\n",
-        device->getName().toRawUTF8(), device->getTypeName().toRawUTF8(),
-        device->getCurrentSampleRate(), device->getCurrentBitDepth());
+    if (!quiet_) {
+        printf("Audio device name: %s\n  type: %s\n  sampling rate: %.1f\n  bit depth: %d\n",
+            device->getName().toRawUTF8(), device->getTypeName().toRawUTF8(),
+            device->getCurrentSampleRate(), device->getCurrentBitDepth());
+    }
 
     generator.source_->prepareToPlay(
         device->getDefaultBufferSize(),
         device->getCurrentSampleRate()
     );
 
-    printf("Player current gain: %.2f\n", generator.player_.getGain());
+    if (!quiet_) {
+        printf("Player current gain: %.2f\n", generator.player_.getGain());
+    }
 
     audioManager_.addAudioCallback(&generator.player_);
 
     printf("generating...\n");
 
     device->start(&generator.player_);
-    Thread::sleep(10000);
+    Thread::sleep(option_.durationMs);
 
-    if (1/*!quite*/) {
+    if (!quiet_) {
         double cpuUsage = audioManager_.getCpuUsage() * 100;
         printf("CPU usage: %.1f %%\n", cpuUsage);
     }
@@ -191,4 +203,43 @@ generate(const juce::ArgumentList& /*args*/)
     device->close();
 
     audioManager_.closeAudioDevice();
+}
+
+void
+paf::Application::
+collectOptionsForTest(const juce::ArgumentList& args)
+{
+    if (args.containsOption("--quiet|-q")) {
+        quiet_ = true;
+    }
+
+    if (args.containsOption("--duration|-d")) {
+        unsigned long inputVal = (unsigned long)(
+            args.getValueForOption("--duration|-d").getLargeIntValue() * 1000);
+        option_.durationMs = std::max(inputVal, 3000ul);
+    }
+}
+
+void
+paf::Application::
+collectOptionsForPlay(const juce::ArgumentList& args)
+{
+    if (args.containsOption("--quiet|-q")) {
+        quiet_ = true;
+    }
+}
+
+void
+paf::Application::
+collectOptionsForGenerate(const juce::ArgumentList& args)
+{
+    if (args.containsOption("--quiet|-q")) {
+        quiet_ = true;
+    }
+
+    if (args.containsOption("--duration|-d")) {
+        unsigned long inputVal = (unsigned long)(
+            args.getValueForOption("--duration|-d").getLargeIntValue() * 1000);
+        option_.durationMs = std::max(inputVal, 5000ul);
+    }
 }
