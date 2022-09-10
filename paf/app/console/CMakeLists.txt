@@ -5,7 +5,7 @@
 
 juce_add_console_app(paf
     PRODUCT_NAME "Play Audio File"  # The name of the final executable, which can differ from the target name
-    COMPANY_NAME "IgorLesik"
+    COMPANY_NAME "Igor Lesik"
 )
 
 #juce_add_modules(
@@ -35,7 +35,11 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 target_compile_options(paf
     PRIVATE
         /W1 #/Wall #/WX
+    #PUBLIC
+    #    /ZI
 )
+#target_link_options(paf
+    #PUBLIC "/INCREMENTAL")
 endif()
 
 # `target_compile_definitions` adds some preprocessor definitions to our target. In a Projucer
@@ -79,7 +83,3 @@ target_link_libraries(paf
         juce::juce_recommended_warning_flags
 )
 
-#if(MSVC)
-#    target_compile_options(paf PUBLIC "/ZI")
-#    target_link_options(paf PUBLIC "/INCREMENTAL")
-#endif()
