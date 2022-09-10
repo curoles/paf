@@ -213,11 +213,14 @@ collectOptionsForTest(const juce::ArgumentList& args)
         quiet_ = true;
     }
 
+    option_.durationMs = 3000ul;
+
     if (args.containsOption("--duration|-d")) {
         unsigned long inputVal = (unsigned long)(
             args.getValueForOption("--duration|-d").getLargeIntValue() * 1000);
         option_.durationMs = std::max(inputVal, 3000ul);
     }
+
 }
 
 void
@@ -237,9 +240,11 @@ collectOptionsForGenerate(const juce::ArgumentList& args)
         quiet_ = true;
     }
 
+    option_.durationMs = 3000ul;
+
     if (args.containsOption("--duration|-d")) {
         unsigned long inputVal = (unsigned long)(
             args.getValueForOption("--duration|-d").getLargeIntValue() * 1000);
-        option_.durationMs = std::max(inputVal, 5000ul);
+        option_.durationMs = std::max(inputVal, 3000ul);
     }
 }

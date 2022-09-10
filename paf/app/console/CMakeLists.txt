@@ -35,11 +35,13 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 target_compile_options(paf
     PRIVATE
         /W1 #/Wall #/WX
-    #PUBLIC
-    #    /ZI
+    PUBLIC
+        /ZI
 )
-#target_link_options(paf
-    #PUBLIC "/INCREMENTAL")
+target_link_options(paf
+    PUBLIC
+        /INCREMENTAL
+)
 endif()
 
 # `target_compile_definitions` adds some preprocessor definitions to our target. In a Projucer
