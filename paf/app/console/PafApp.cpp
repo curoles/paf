@@ -8,9 +8,6 @@
 
 #include <juce_audio_utils/juce_audio_utils.h>
 
-#include "paf/lib/generate/Generator.h"
-#include "paf/lib/generate/GeneratorFactory.h"
-
 using namespace paf;
 
 void
@@ -86,7 +83,7 @@ play(const juce::ArgumentList& args)
         return;
     }
 
-    if (!quiet_) {
+    if (!option_.quiet) {
         printf("Audio file format: %s\n", fmt->getFormatName().toRawUTF8());
     }
 
@@ -115,7 +112,7 @@ playAudioFile(juce::File& inputFile)
         return;
     }
 
-    if (!quiet_) {
+    if (!option_.quiet) {
         printf("Audio device name: %s\n  type: %s\n  sampling rate: %.1f\n  bit depth: %d\n",
             device->getName().toRawUTF8(), device->getTypeName().toRawUTF8(),
             device->getCurrentSampleRate(), device->getCurrentBitDepth());
@@ -137,7 +134,7 @@ playAudioFile(juce::File& inputFile)
     std::unique_ptr<AudioSourcePlayer> player(new AudioSourcePlayer());
     player->setSource(source.get());
 
-    if (!quiet_) {
+    if (!option_.quiet) {
         printf("Player current gain: %.2f\n", player->getGain());
     }
 
@@ -149,7 +146,7 @@ playAudioFile(juce::File& inputFile)
         Thread::sleep(100);
     }
 
-    if (!quiet_) {
+    if (!option_.quiet) {
         double cpuUsage = audioManager_.getCpuUsage() * 100;
         printf("CPU usage: %.1f %%\n", cpuUsage);
     }
@@ -158,135 +155,3 @@ playAudioFile(juce::File& inputFile)
     device->close();
 }
 
-void
-paf::Application::
-generate(const juce::ArgumentList& args)
-{
-    collectOptionsForGenerate(args);
-
-    option_.signalType = paf::GeneratorFactory::SIN;
-    String signalName("sin");
-    if (args.size() > 1) {
-        signalName = args[1].text;
-        if (signalName == "sin") { option_.signalType = paf::GeneratorFactory::SIN; }
-        else if (signalName == "white-noise") { option_.signalType = paf::GeneratorFactory::WHITE_NOISE; }
-        else {
-            printf("Error: unknown signal '%s', "
-                "use sin|white-noise\n", signalName.toRawUTF8());
-            return;
-        }
-    }
-
-    auto src = paf::GeneratorFactory::make((paf::GeneratorFactory::Type)option_.signalType);
-    if (src.get() == nullptr) {
-        printf("Error: failed to create generator\n");
-        return;
-    }
-
-    paf::Generator generator(std::move(src));
-
-    static const int nrInputChannels = 0;
-    int nrOutputChannels = option_.nrChannels;
-
-    String report = audioManager_.initialiseWithDefaultDevices(
-        nrInputChannels, nrOutputChannels);
-
-    if (!report.isEmpty()) {
-        printf("Initialization report: '%s'\n", report.toRawUTF8());
-    }
-
-    juce::AudioIODevice* device = audioManager_.getCurrentAudioDevice();
-    if (!device) {
-        printf("Error: can't find output audio device.\n");
-        return;
-    }
-
-    if (!quiet_) {
-        printf("Audio device name: %s\n  type: %s\n  sampling rate: %.1f\n  bit depth: %d\n",
-            device->getName().toRawUTF8(), device->getTypeName().toRawUTF8(),
-            device->getCurrentSampleRate(), device->getCurrentBitDepth());
-    }
-
-    generator.source_->prepareToPlay(
-        device->getDefaultBufferSize(),
-        device->getCurrentSampleRate()
-    );
-
-    if (!quiet_) {
-        printf("Player current gain: %.2f\n", generator.player_.getGain());
-    }
-
-    audioManager_.addAudioCallback(&generator.player_);
-
-    printf("generating %s...\n", signalName.toRawUTF8());
-
-    device->start(&generator.player_);
-    Thread::sleep(option_.durationMs);
-
-    if (!quiet_) {
-        double cpuUsage = audioManager_.getCpuUsage() * 100;
-        printf("CPU usage: %.1f %%\n", cpuUsage);
-    }
-
-    device->stop();
-    device->close();
-
-    audioManager_.closeAudioDevice();
-}
-
-void
-paf::Application::
-collectOptionsForTest(const juce::ArgumentList& args)
-{
-    if (args.containsOption("--quiet|-q")) {
-        quiet_ = true;
-    }
-
-    option_.durationMs = 3000ul;
-
-    if (args.containsOption("--duration|-d")) {
-        unsigned long inputVal = (unsigned long)(
-            args.getValueForOption("--duration|-d").getLargeIntValue() * 1000);
-        option_.durationMs = std::max(inputVal, 3000ul);
-    }
-
-}
-
-void
-paf::Application::
-collectOptionsForPlay(const juce::ArgumentList& args)
-{
-    if (args.containsOption("--quiet|-q")) {
-        quiet_ = true;
-    }
-
-    if (args.containsOption("--channels|-c")) {
-        unsigned short inputVal = (unsigned short)(
-            args.getValueForOption("--channels|-c").getIntValue());
-        option_.nrChannels = std::min(std::max(inputVal, (unsigned short)32), (unsigned short)1);
-    }
-}
-
-void
-paf::Application::
-collectOptionsForGenerate(const juce::ArgumentList& args)
-{
-    if (args.containsOption("--quiet|-q")) {
-        quiet_ = true;
-    }
-
-    option_.durationMs = 3000ul;
-
-    if (args.containsOption("--duration|-d")) {
-        unsigned long inputVal = (unsigned long)(
-            args.getValueForOption("--duration|-d").getLargeIntValue() * 1000);
-        option_.durationMs = std::max(inputVal, 3000ul);
-    }
-
-    if (args.containsOption("--channels|-c")) {
-        unsigned short inputVal = (unsigned short)(
-            args.getValueForOption("--channels|-c").getIntValue());
-        option_.nrChannels = std::min(std::max(inputVal, (unsigned short)32), (unsigned short)1);
-    }
-
-}

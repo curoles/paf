@@ -16,6 +16,11 @@ struct GeneratorSource : public juce::AudioSource
     virtual void setAmplitude(float newAmplitude) = 0;
 
     virtual void setFrequency(double newFrequencyHz) = 0;
+
+    static inline
+    float* getBufferWrPtrStart(int channel, const juce::AudioSourceChannelInfo& bufferToFill) {
+        return bufferToFill.buffer->getWritePointer(channel, bufferToFill.startSample);
+    }
 };
 
 class Generator

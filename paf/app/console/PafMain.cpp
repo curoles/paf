@@ -103,11 +103,6 @@ void defineCommandLineOptions(
                       nullptr});
 
 #if 0
-    app.addCommand ({ "--channels|-c",
-                      "--channels|-c <number-of-channels>",
-                      "The number of channels.",
-                      "The number of channels. The default is one channel. Valid values are 1 through ?.",
-                      [&app] (const auto& args) { app.setNrChannels(args); }});
 
     app.addCommand ({ "--rate|-r",
                       "--rate|-r <sampling-rate-in-Hz>",

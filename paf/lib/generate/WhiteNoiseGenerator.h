@@ -14,6 +14,8 @@ namespace paf {
 
 class WhiteNoiseGenerator : public paf::GeneratorSource
 {
+    std::atomic<float> amplitude_{1.0};
+
     juce::Random random_;
 
 public:
@@ -28,11 +30,21 @@ public:
     void releaseResources() override {
     }
 
-    void getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) override {
-        (void)bufferToFill;
+    void getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) override
+    {
+        for (int channel = 0; channel < bufferToFill.buffer->getNumChannels(); ++channel)
+        {
+            auto* buffer = getBufferWrPtrStart(channel, bufferToFill);
+
+            // Fill the required number of samples with noise
+            for (auto sample = 0; sample < bufferToFill.numSamples; ++sample) {
+                buffer[sample] = random_.nextFloat() * amplitude_ * 2 - amplitude_;
+            }
+        }
     }
 
-    void setAmplitude(float /*newAmplitude*/) override {
+    void setAmplitude(float newAmplitude) override {
+        amplitude_ = newAmplitude;
     }
 
     void setFrequency(double /*newFrequencyHz*/) override {

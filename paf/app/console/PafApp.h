@@ -12,6 +12,9 @@ namespace paf {
 
 struct AppOptions
 {
+    /// Quite mode, do not show diagnostic messages.
+    bool quiet{false};
+
     unsigned long durationMs{0};
     unsigned short nrChannels{2};
     unsigned short signalType{0};
@@ -21,9 +24,6 @@ class Application
 {
     juce::AudioDeviceManager audioManager_;
     juce::AudioFormatManager formatManager_;
-
-    /// Quite mode, do not show diagnostic messages.
-    bool quiet_{false};
 
     AppOptions option_;
 
@@ -39,7 +39,7 @@ public:
     void generate(const juce::ArgumentList& args);
 
     void setQuietMode(bool newMode=true) {
-        quiet_ = newMode;
+        option_.quiet = newMode;
     }
 
 private:
