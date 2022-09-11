@@ -8,7 +8,7 @@
 
 using namespace paf;
 
-enum AppOption {QUIET, CHANNELS, DURATION};
+enum AppOption {QUIET, CHANNELS, DURATION, AMPLITUDE, FREQ};
 
 template<AppOption N>
 struct AppOptionStr;
@@ -16,9 +16,11 @@ struct AppOptionStr;
 #define DEF_OP(num, str) template<> \
 struct AppOptionStr<AppOption::num> { static constexpr const char* value = str; };
 
-DEF_OP(QUIET,    "--quiet|-q")
-DEF_OP(CHANNELS, "--channels|-c")
-DEF_OP(DURATION, "--duration|-d")
+DEF_OP(QUIET,     "--quiet|-q")
+DEF_OP(CHANNELS,  "--channels|-c")
+DEF_OP(DURATION,  "--duration|-d")
+DEF_OP(AMPLITUDE, "--amplitude|-a")
+DEF_OP(FREQ,      "--freq|-f")
 #undef DEF_OP
 
 
@@ -63,6 +65,36 @@ static void parseOptionDuration(juce::ArgumentList& args, AppOptions& option,
         args.removeOptionIfFound(name);
     }
 
+}
+
+static void parseOptionAmplitude(juce::ArgumentList& args, AppOptions& option)
+{
+    constexpr const char* name = AppOptionStr<AppOption::AMPLITUDE>::value;
+
+    if (args.containsOption(name)) {
+        float inputVal = (float)(
+            args.getValueForOption(name).getFloatValue());
+
+        option.amplitude = std::min(std::max(inputVal, 1.0f), -1.0f);
+
+        args.removeValueForOption(name);
+        args.removeOptionIfFound(name);
+    }
+}
+
+static void parseOptionFrequency(juce::ArgumentList& args, AppOptions& option)
+{
+    constexpr const char* name = AppOptionStr<AppOption::FREQ>::value;
+
+    if (args.containsOption(name)) {
+        float inputVal = (float)(
+            args.getValueForOption(name).getFloatValue());
+
+        option.amplitude = std::min(std::max(inputVal, 20'000.0f), 1.0f);
+
+        args.removeValueForOption(name);
+        args.removeOptionIfFound(name);
+    }
 }
 
 static void showUnknownOptions(const juce::ArgumentList& args)
@@ -119,6 +151,8 @@ collectOptionsForGenerate(const juce::ArgumentList& args_)
     parseOptionQuiet(args, option_);
     parseOptionChannels(args, option_);
     parseOptionDuration(args, option_);
+    parseOptionAmplitude(args, option_);
+    parseOptionFrequency(args, option_);
 
     showUnknownOptions(args);
 }

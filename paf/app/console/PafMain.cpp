@@ -87,12 +87,17 @@ void defineCommandLineOptions(
                       "Define number of audio channels to use, default is 2.",
                       nullptr});
 
-    cli.addCommand ({ "--file|-f",
-                      "--file|-f <filename>",
-                      "File to play or write to",
-                      "File to play or write to.",
+    cli.addCommand ({ "--amplitude|-a",
+                      "--amplitude|-a <value>",
+                      "Signal amplitude",
+                      "Amplitude of generated signal.",
                       nullptr});
 
+    cli.addCommand ({ "--freq|-f",
+                      "--freq|-f <valueHz>",
+                      "Signal frequency",
+                      "Frequency of generated signal.",
+                      nullptr});
 
     cli.addCommand ({ "--duration|-d",
                       "--duration|-d <sec>",
@@ -102,7 +107,13 @@ void defineCommandLineOptions(
                       "omitted then the process will run until it is killed or naturally ends.",
                       nullptr});
 
+
 #if 0
+    /*cli.addCommand ({ "--file|-F",
+                      "--file|-F <filename>",
+                      "File to play or write to",
+                      "File to play or write to.",
+                      nullptr});*/
 
     app.addCommand ({ "--rate|-r",
                       "--rate|-r <sampling-rate-in-Hz>",

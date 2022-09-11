@@ -18,6 +18,8 @@ struct AppOptions
     unsigned long durationMs{0};
     unsigned short nrChannels{2};
     unsigned short signalType{0};
+    float amplitude{1.0};
+    float freq{1000.0};
 };
 
 class Application

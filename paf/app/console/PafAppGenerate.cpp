@@ -38,6 +38,9 @@ generate(const juce::ArgumentList& args)
         return;
     }
 
+    src->setAmplitude(option_.amplitude);
+    src->setFrequency(option_.freq);
+
     paf::Generator generator(std::move(src));
 
     static const int nrInputChannels = 0;
