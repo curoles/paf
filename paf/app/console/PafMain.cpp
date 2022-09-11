@@ -45,6 +45,13 @@ void defineCommandLineOptions(
                       [&app] (const auto& args) { app.test(args); }
                       });
 
+    cli.addCommand({  "list",
+                      "list",
+                      "List audio drivers and devices",
+                      "List discovered system audio drivers and devices",
+                      [&app] (const auto& args) { app.list(args); }
+                      });
+
     cli.addCommand({  "play",
                       "play [filename]",
                       "Play audio file",
@@ -53,10 +60,9 @@ void defineCommandLineOptions(
                       });
 
     cli.addCommand({  "generate",
-                      "generate --signal <type>",
+                      "generate <type>",
                       "Generate audio signal",
-                      "Generate audio signal:\n"
-                      "generate --signal <type> --duration <time> --file <output-file-name>",
+                      "Generate audio signal.",
                       [&app] (const auto& args) { app.generate(args); }
                       });
 
@@ -73,6 +79,12 @@ void defineCommandLineOptions(
                       "--quiet|-q",
                       "Quiet mode, no diagnostic messages",
                       "Do not show diagnostic messages.",
+                      nullptr});
+
+    cli.addCommand ({ "--channels|-c",
+                      "--channels|-s <number>",
+                      "Number of audio channels, default is 2",
+                      "Define number of audio channels to use, default is 2.",
                       nullptr});
 
     cli.addCommand ({ "--file|-f",

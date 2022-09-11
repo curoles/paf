@@ -11,7 +11,12 @@
 
 namespace paf {
 
-using GeneratorSource = juce::AudioSource;
+struct GeneratorSource : public juce::AudioSource
+{
+    virtual void setAmplitude(float newAmplitude) = 0;
+
+    virtual void setFrequency(double newFrequencyHz) = 0;
+};
 
 class Generator
 {

@@ -17,8 +17,14 @@
 Play a beep using default audio output device.
 
 ```shell
-paf test               # default is 3 sec
-paf test --duration=5  # set duration of the beep
+paf test
+```
+
+## List Audio Drivers and Devices
+
+
+```shell
+paf list
 ```
 
 ## Play Audio File

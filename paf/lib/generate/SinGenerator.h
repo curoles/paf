@@ -35,11 +35,11 @@ public:
         toneGen_.getNextAudioBlock(bufferToFill);
     }
 
-    void setAmplitude(float newAmplitude) {
+    void setAmplitude(float newAmplitude) override {
         toneGen_.setAmplitude(newAmplitude);
     }
 
-    void setFrequency(double newFrequencyHz) {
+    void setFrequency(double newFrequencyHz) override {
         toneGen_.setFrequency(newFrequencyHz);
     }
 

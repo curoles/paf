@@ -41,6 +41,22 @@ test(const juce::ArgumentList& args)
 
 void
 paf::Application::
+list(const juce::ArgumentList& /*args*/)
+{
+    const OwnedArray<AudioIODeviceType>& devtypes = audioManager_.getAvailableDeviceTypes();
+    for (AudioIODeviceType *const * devtype = devtypes.begin(); devtype != devtypes.end(); ++devtype) {
+        const String& devtypeName = (*devtype)->getTypeName();
+        printf("- %s\n", devtypeName.toRawUTF8());
+        (*devtype)->scanForDevices();
+        StringArray names = (*devtype)->getDeviceNames(/*wantInputNames=*/false);
+        for (const String* name = names.begin(); name != names.end(); ++name) {
+            printf("  + %s\n", name->toRawUTF8());
+        }
+    }
+}
+
+void
+paf::Application::
 play(const juce::ArgumentList& args)
 {
     collectOptionsForPlay(args);
@@ -148,16 +164,29 @@ generate(const juce::ArgumentList& args)
 {
     collectOptionsForGenerate(args);
 
-    auto src = paf::GeneratorFactory::make(paf::GeneratorFactory::SIN);
+    option_.signalType = paf::GeneratorFactory::SIN;
+    String signalName("sin");
+    if (args.size() > 1) {
+        signalName = args[1].text;
+        if (signalName == "sin") { option_.signalType = paf::GeneratorFactory::SIN; }
+        else if (signalName == "white-noise") { option_.signalType = paf::GeneratorFactory::WHITE_NOISE; }
+        else {
+            printf("Error: unknown signal '%s', "
+                "use sin|white-noise\n", signalName.toRawUTF8());
+            return;
+        }
+    }
+
+    auto src = paf::GeneratorFactory::make((paf::GeneratorFactory::Type)option_.signalType);
     if (src.get() == nullptr) {
-        printf("failed to create generator\n");
+        printf("Error: failed to create generator\n");
         return;
     }
 
     paf::Generator generator(std::move(src));
 
     static const int nrInputChannels = 0;
-    int nrOutputChannels = 2; //FIXME use option
+    int nrOutputChannels = option_.nrChannels;
 
     String report = audioManager_.initialiseWithDefaultDevices(
         nrInputChannels, nrOutputChannels);
@@ -189,7 +218,7 @@ generate(const juce::ArgumentList& args)
 
     audioManager_.addAudioCallback(&generator.player_);
 
-    printf("generating...\n");
+    printf("generating %s...\n", signalName.toRawUTF8());
 
     device->start(&generator.player_);
     Thread::sleep(option_.durationMs);
@@ -230,6 +259,12 @@ collectOptionsForPlay(const juce::ArgumentList& args)
     if (args.containsOption("--quiet|-q")) {
         quiet_ = true;
     }
+
+    if (args.containsOption("--channels|-c")) {
+        unsigned short inputVal = (unsigned short)(
+            args.getValueForOption("--channels|-c").getIntValue());
+        option_.nrChannels = std::min(std::max(inputVal, (unsigned short)32), (unsigned short)1);
+    }
 }
 
 void
@@ -247,4 +282,11 @@ collectOptionsForGenerate(const juce::ArgumentList& args)
             args.getValueForOption("--duration|-d").getLargeIntValue() * 1000);
         option_.durationMs = std::max(inputVal, 3000ul);
     }
+
+    if (args.containsOption("--channels|-c")) {
+        unsigned short inputVal = (unsigned short)(
+            args.getValueForOption("--channels|-c").getIntValue());
+        option_.nrChannels = std::min(std::max(inputVal, (unsigned short)32), (unsigned short)1);
+    }
+
 }

@@ -13,6 +13,8 @@ namespace paf {
 struct AppOptions
 {
     unsigned long durationMs{0};
+    unsigned short nrChannels{2};
+    unsigned short signalType{0};
 };
 
 class Application
@@ -32,6 +34,7 @@ public:
     }
 
     void test(const juce::ArgumentList& args);
+    void list(const juce::ArgumentList& args);
     void play(const juce::ArgumentList& args);
     void generate(const juce::ArgumentList& args);
 
