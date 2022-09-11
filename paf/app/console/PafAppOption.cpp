@@ -75,7 +75,8 @@ static void parseOptionAmplitude(juce::ArgumentList& args, AppOptions& option)
         float inputVal = (float)(
             args.getValueForOption(name).getFloatValue());
 
-        option.amplitude = std::min(std::max(inputVal, 1.0f), -1.0f);
+        option.amplitude = std::min(inputVal, 1.0f);
+        option.amplitude = std::max(inputVal, 0.1f);
 
         args.removeValueForOption(name);
         args.removeOptionIfFound(name);
@@ -90,7 +91,8 @@ static void parseOptionFrequency(juce::ArgumentList& args, AppOptions& option)
         float inputVal = (float)(
             args.getValueForOption(name).getFloatValue());
 
-        option.amplitude = std::min(std::max(inputVal, 20'000.0f), 1.0f);
+        option.freq = std::min(inputVal, 20'000.0f);
+        option.freq = std::max(inputVal, 20.0f);
 
         args.removeValueForOption(name);
         args.removeOptionIfFound(name);
