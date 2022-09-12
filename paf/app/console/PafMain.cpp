@@ -53,7 +53,7 @@ void defineCommandLineOptions(
                       });
 
     cli.addCommand({  "play",
-                      "play [filename]",
+                      "play <filename>",
                       "Play audio file",
                       "Play audio file.",
                       [&app] (const auto& args) { app.play(args); }
