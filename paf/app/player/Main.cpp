@@ -54,7 +54,7 @@ initialise(const juce::String& commandLine)
     // This method is where you should put your application's initialisation code..
     juce::ignoreUnused (commandLine);
 
-    mainWindow.reset (new MainWindow (getApplicationName()));
+    mainWindow.reset(new MainWindow(getApplicationName()));
 }
 
 void
