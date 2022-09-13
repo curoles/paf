@@ -16,7 +16,7 @@ class MainComponent : public AudioComponent
     juce::TextButton buttonPlay_;
     juce::TextButton buttonStop_;
 
-    //std::unique_ptr<juce::FileChooser> fileChooser_;
+    std::unique_ptr<juce::FileChooser> fileChooser_;
 
 public:
     MainComponent();

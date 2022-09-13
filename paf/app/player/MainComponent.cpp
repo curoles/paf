@@ -50,15 +50,15 @@ void
 MainComponent::
 buttonOpenClicked()
 {
-    auto chooser = std::make_unique<juce::FileChooser> (
-        "Select a Wave file to play...",
+    fileChooser_ = std::make_unique<juce::FileChooser> (
+        "Select a file to play...",
         juce::File{},
-        "*.wav");
+        "*.wav,*.mp3");
 
     auto chooserFlags = juce::FileBrowserComponent::openMode
                       | juce::FileBrowserComponent::canSelectFiles;
 
-    chooser->launchAsync(chooserFlags, [this] (const FileChooser& fc)
+    fileChooser_->launchAsync(chooserFlags, [this] (const FileChooser& fc)
     {
         auto file = fc.getResult();
 
