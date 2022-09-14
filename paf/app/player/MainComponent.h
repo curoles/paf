@@ -10,11 +10,15 @@
  *
  * Lives inside the main window.
  */
-class MainComponent : public AudioComponent
+class MainComponent : public AudioComponent,
+                      public juce::Timer
 {
     juce::TextButton buttonOpen_;
     juce::TextButton buttonPlay_;
     juce::TextButton buttonStop_;
+
+    juce::ToggleButton toggleLooping_;
+    juce::Label currentPositionLabel_;
 
     std::unique_ptr<juce::FileChooser> fileChooser_;
 
@@ -24,6 +28,8 @@ public:
     void paint(juce::Graphics&) override;
     void resized() override;
 
+    void timerCallback() override;
+
 private:
 
     void uiChangeState(TransportState newState) override;
@@ -31,7 +37,9 @@ private:
     void buttonOpenClicked();
     void buttonPlayClicked();
     void buttonStopClicked();
+    void toggleLoopChanged();
 
+    void updateLoopState(bool shouldLoop);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

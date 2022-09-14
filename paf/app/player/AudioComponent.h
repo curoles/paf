@@ -6,8 +6,16 @@ class AudioComponent : public juce::AudioAppComponent,
                        public juce::ChangeListener
 {
 protected:
+    // AudioFormatManager can create suitable objects for reading
+    // audio data from different formats such as WAV, MP3 and so on.
     juce::AudioFormatManager formatManager_;
+
+    // Handles the low-level file reading operations on the audio file.
     std::unique_ptr<juce::AudioFormatReaderSource> readerSource_;
+
+    // AudioTransportSource controls the playback of hte AudioFormatReaderSource object,
+    // including starting and stopping the playback of the AudioFormatReaderSource object.
+    // It can also perform sample rate conversion and it can buffer audio ahead of time if we wish.
     juce::AudioTransportSource transportSource_;
 
     enum TransportState
@@ -15,6 +23,8 @@ protected:
         STOPPED,
         STARTING,
         PLAYING,
+        PAUSING,
+        PAUSED,
         STOPPING
     };
 
@@ -41,7 +51,7 @@ public:
 
     void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill) override
     {
-        if (readerSource_.get() == nullptr)
+        if (readerSource_.get() == nullptr) // clear buffer if we do not have working reader
         {
             bufferToFill.clearActiveBufferRegion();
             return;
@@ -55,14 +65,18 @@ public:
         transportSource_.releaseResources();
     }
 
+    // When changes in the transport are reported, the changeListenerCallback()
+    // function will be called. This will be called asynchronously on the message thread.
     void changeListenerCallback(juce::ChangeBroadcaster* source) override
     {
         if (source == &transportSource_)
         {
             if (transportSource_.isPlaying())
                 changeState(PLAYING);
-            else
+            else if (state_ == STOPPING or state_ == PLAYING)
                 changeState(STOPPED);
+            else if (state_ == PAUSING)
+                changeState(PAUSED);
         }
     }
 
@@ -77,14 +91,16 @@ public:
             case STOPPED:
                 transportSource_.setPosition(0.0);
                 break;
-
             case STARTING:
                 transportSource_.start();
                 break;
-
             case PLAYING:
                 break;
-
+            case PAUSING:
+                transportSource_.stop();
+                break;
+            case PAUSED:
+                break;
             case STOPPING:
                 transportSource_.stop();
                 break;

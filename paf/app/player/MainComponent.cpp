@@ -18,7 +18,16 @@ MainComponent::MainComponent()
     buttonStop_.setColour(juce::TextButton::buttonColourId, juce::Colours::red);
     buttonStop_.setEnabled(false);
 
+    addAndMakeVisible(&toggleLooping_);
+    toggleLooping_.setButtonText("Loop");
+    toggleLooping_.onClick = [this] { toggleLoopChanged(); };
+
+    addAndMakeVisible (&currentPositionLabel_);
+    currentPositionLabel_.setText ("Stopped", juce::dontSendNotification);
+
     setSize(600, 400);
+
+    startTimer(20);
 }
 
 void
@@ -44,6 +53,8 @@ resized()
     buttonOpen_.setBounds(10, 10, getWidth() - 20, 20);
     buttonPlay_.setBounds(10, 40, getWidth() - 20, 20);
     buttonStop_.setBounds(10, 70, getWidth() - 20, 20);
+    toggleLooping_.setBounds (10, 100, getWidth() - 20, 20);
+    currentPositionLabel_.setBounds(10, 130, getWidth() - 20, 20);
 }
 
 void
@@ -82,14 +93,29 @@ void
 MainComponent::
 buttonPlayClicked()
 {
-    changeState(STARTING);
+    if (state_ == STOPPED or state_ == PAUSED) {
+        changeState(STARTING);
+        updateLoopState(toggleLooping_.getToggleState());
+    }
+    else if (state_ == PLAYING)
+        changeState(PAUSING);
 }
 
 void
 MainComponent::
 buttonStopClicked()
 {
-    changeState(STOPPING);
+    if (state_ == PAUSED)
+        changeState(STOPPED);
+    else
+        changeState(STOPPING);
+}
+
+void
+MainComponent::
+toggleLoopChanged()
+{
+    updateLoopState(toggleLooping_.getToggleState());
 }
 
 void
@@ -100,18 +126,56 @@ uiChangeState(TransportState newState)
     {
         case STOPPED:
             buttonStop_.setEnabled(false);
+            buttonStop_.setButtonText("Stop");
             buttonPlay_.setEnabled(true);
+            buttonPlay_.setButtonText("Play");
             break;
-
         case STARTING:
-            buttonPlay_.setEnabled(false);
             break;
-
         case PLAYING:
             buttonStop_.setEnabled(true);
+            buttonStop_.setEnabled("Stop");
+            buttonPlay_.setButtonText("Pause");
             break;
-
+        case PAUSING:
+            break;
+        case PAUSED:
+            buttonPlay_.setButtonText("Resume");
+            buttonStop_.setButtonText("Return to start");
+            break;
         case STOPPING:
             break;
     }
 }
+
+void
+MainComponent::
+timerCallback()
+{
+    if (transportSource_.isPlaying())
+    {
+        juce::RelativeTime position(transportSource_.getCurrentPosition());
+
+        auto minutes = ((int) position.inMinutes()) % 60;
+        auto seconds = ((int) position.inSeconds()) % 60;
+        auto millis  = ((int) position.inMilliseconds()) % 1000;
+
+        auto positionString = juce::String::formatted("%02d:%02d:%03d", minutes, seconds, millis);
+
+        currentPositionLabel_.setText(positionString, juce::dontSendNotification);
+    }
+    else
+    {
+        currentPositionLabel_.setText("Stopped", juce::dontSendNotification);
+    }
+}
+
+void
+MainComponent::
+updateLoopState(bool shouldLoop)
+{
+    if (readerSource_.get() != nullptr) {
+        readerSource_->setLooping(shouldLoop);
+    }
+}
+
