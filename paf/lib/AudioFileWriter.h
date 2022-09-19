@@ -17,12 +17,11 @@ class AudioFileWriter
     std::unique_ptr<AudioFormatWriter> writer_;
     std::unique_ptr<AudioFormatWriter::ThreadedWriter> threadedWriter_;
 
-public:
-    AudioBuffer<float> audioBuffer_;
+    unsigned int numChannels_ = 2;
+    float samplingRate_ = 48'000.0;
 
 public:
-    AudioFileWriter(int numChannels=2, int numSamples=16*1024):
-        audioBuffer_(numChannels, numSamples)
+    AudioFileWriter(unsigned int numChannels=2):numChannels_(numChannels)
     {
         formatManager_.registerBasicFormats();
     }
@@ -30,8 +29,16 @@ public:
     enum class Result {OK, NO_ACCESS, FAIL_CREATE, FAIL_OPEN,
         UNKNOWN_FORMAT, FAIL_OPEN_STREAM};
 
-    Result open(const String& absolutePath)
+    Result open(
+        const String& absolutePath,
+        unsigned int numChannels = 2,
+        float samplingRate = 48'000.0,
+        unsigned int samplingBits = 24
+    )
     {
+        numChannels_ = numChannels;
+        samplingRate_ = samplingRate;
+
         Result result{Result::OK};
 
         fileToWriteTo_ = absolutePath;
@@ -52,9 +59,9 @@ public:
 
         writer_.reset(audioFormat->createWriterFor(
             fileOutputStream_.get(),
-            48000.0,
-            (unsigned int)audioBuffer_.getNumChannels(),
-            24,
+            samplingRate_,
+            numChannels_,
+            (int)samplingBits,
             {},
             0
         ));
@@ -72,21 +79,60 @@ public:
         //            32768)); fileOutputStream.getBufferSize() * 4
     }
 
-    bool writeBufferToFile()
+    bool writeFromAudioSampleBuffer(
+        const AudioBuffer<float>& audioBuffer,
+        unsigned int startSample = 0,
+        unsigned int numSamples = 0
+    )
     {
         bool result{false};
 
         if (writer_ != nullptr) {
             result = writer_->writeFromAudioSampleBuffer(
-                audioBuffer_, /*start=*/0, audioBuffer_.getNumSamples());
+                audioBuffer,
+                (int)startSample,
+                (int)(numSamples? numSamples : (unsigned int)audioBuffer.getNumSamples())
+            );
         }
 
         return result;
     }
 
+    bool writeFromAudioSource(
+        AudioSource& source,
+        unsigned int numSamplesToRead,
+        unsigned int samplesPerBlock = 2*1024
+    )
+    {
+        bool result{false};
+
+        if (writer_ != nullptr) {
+            result = writer_->writeFromAudioSource(
+                source,
+                (int)numSamplesToRead,
+                (int)samplesPerBlock
+            );
+        }
+
+        return result;
+    }
+
+    bool writeFromAudioSourceWithTimeout(
+        AudioSource& source,
+        float durationMs,
+        unsigned int samplesPerBlock = 2*1024
+    )
+    {
+        const unsigned int numSamplesToRead = (durationMs * samplingRate_) / 1000;
+
+        return writeFromAudioSource(
+            source,
+            numSamplesToRead,
+            samplesPerBlock
+        );
+    }
+
     //bool writeFromFloatArrays(const float *const *channels, int numChannels, int numSamples)
-    //bool writeFromAudioSampleBuffer (const AudioBuffer< float > &source, int startSample, int numSamples)
-    //bool writeFromAudioSource (AudioSource &source, int numSamplesToRead, int samplesPerBlock=2048)
     //bool writeFromAudioReader (AudioFormatReader &reader, int64 startSample, int64 numSamplesToRead)
 };
 

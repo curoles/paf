@@ -11,6 +11,8 @@
 #include "paf/lib/generate/Generator.h"
 #include "paf/lib/generate/GeneratorFactory.h"
 
+#include "paf/lib/AudioFileWriter.h"
+
 using namespace paf;
 
 void
@@ -23,8 +25,12 @@ generate(const juce::ArgumentList& args)
     String signalName("sin");
     if (args.size() > 1 and !args[1].text.startsWith("-")) {
         signalName = args[1].text;
-        if (signalName == "sin") { option_.signalType = paf::GeneratorFactory::SIN; }
-        else if (signalName == "white-noise") { option_.signalType = paf::GeneratorFactory::WHITE_NOISE; }
+        if (signalName == "sin") {
+            option_.signalType = paf::GeneratorFactory::SIN;
+        }
+        else if (signalName == "white-noise") {
+            option_.signalType = paf::GeneratorFactory::WHITE_NOISE;
+        }
         else {
             printf("Error: unknown signal '%s', "
                 "use sin|white-noise\n", signalName.toRawUTF8());
@@ -43,6 +49,18 @@ generate(const juce::ArgumentList& args)
 
     paf::Generator generator(std::move(src));
 
+    if (!option_.outputFile.isEmpty()) {
+        //
+    }
+    else {
+        generateSound(generator, signalName);
+    }
+}
+
+void
+paf::Application::
+generateSound(paf::Generator& generator, const String& signalName)
+{
     static const int nrInputChannels = 0;
     int nrOutputChannels = option_.nrChannels;
 
@@ -92,3 +110,41 @@ generate(const juce::ArgumentList& args)
     audioManager_.closeAudioDevice();
 }
 
+void
+paf::Application::
+generateFile(paf::Generator& generator, const String& signalName)
+{
+    paf::AudioFileWriter writer;
+
+    float sampleRate = 48'000.0;
+    unsigned int samplesPerBlock = 2*1024;
+
+    auto result = writer.open(
+        option_.outputFile,
+        2,
+        sampleRate,
+        24
+    );
+
+    if (result != writer.Result::OK) {
+        printf("Error: can't write to %s\n", option_.outputFile.toRawUTF8());
+        return;
+    }
+
+    generator.source_->prepareToPlay(
+        (int)samplesPerBlock,
+        sampleRate
+    );
+
+    printf("generating %s...\n", signalName.toRawUTF8());
+
+    bool ok = writer.writeFromAudioSourceWithTimeout(
+        *generator.source_,
+        option_.durationMs,
+        samplesPerBlock
+    );
+
+    if (!ok) {
+        printf("Error during writing generated signal in to file.\n");
+    }
+}

@@ -8,7 +8,9 @@
 
 using namespace paf;
 
-enum AppOption {QUIET, CHANNELS, DURATION, AMPLITUDE, FREQ};
+enum AppOption {QUIET, CHANNELS, DURATION, AMPLITUDE, FREQ,
+    OUT_FILE
+};
 
 template<AppOption N>
 struct AppOptionStr;
@@ -21,6 +23,7 @@ DEF_OP(CHANNELS,  "--channels|-c")
 DEF_OP(DURATION,  "--duration|-d")
 DEF_OP(AMPLITUDE, "--amplitude|-a")
 DEF_OP(FREQ,      "--freq|-f")
+DEF_OP(OUT_FILE,  "--output-file|-o")
 #undef DEF_OP
 
 
@@ -99,6 +102,18 @@ static void parseOptionFrequency(juce::ArgumentList& args, AppOptions& option)
     }
 }
 
+static void parseOptionOutputFile(juce::ArgumentList& args, AppOptions& option)
+{
+    constexpr const char* name = AppOptionStr<AppOption::OUT_FILE>::value;
+
+    if (args.containsOption(name)) {
+        option.outputFile = args.getValueForOption(name);
+
+        args.removeValueForOption(name);
+        args.removeOptionIfFound(name);
+    }
+}
+
 static void showUnknownOptions(const juce::ArgumentList& args)
 {
     if (args.size() > 0) printf("WARNING! Unknown or unused options:\n");
@@ -155,6 +170,7 @@ collectOptionsForGenerate(const juce::ArgumentList& args_)
     parseOptionDuration(args, option_);
     parseOptionAmplitude(args, option_);
     parseOptionFrequency(args, option_);
+    parseOptionOutputFile(args, option_);
 
     showUnknownOptions(args);
 }

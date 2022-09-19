@@ -10,6 +10,8 @@
 
 namespace paf {
 
+class Generator;
+
 struct AppOptions
 {
     /// Quite mode, do not show diagnostic messages.
@@ -20,6 +22,8 @@ struct AppOptions
     unsigned short signalType{0};
     float amplitude{1.0};
     float freq{1000.0};
+
+    String outputFile;
 };
 
 class Application
@@ -50,6 +54,9 @@ private:
     void collectOptionsForTest(const juce::ArgumentList& args);
     void collectOptionsForPlay(const juce::ArgumentList& args);
     void collectOptionsForGenerate(const juce::ArgumentList& args);
+
+    void generateSound(paf::Generator& generator, const String& signalName);
+    void generateFile(paf::Generator& generator, const String& signalName);
 };
 
 } // namespace paf

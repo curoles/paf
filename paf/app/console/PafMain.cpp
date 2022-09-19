@@ -107,14 +107,12 @@ void defineCommandLineOptions(
                       "omitted then the process will run until it is killed or naturally ends.",
                       nullptr});
 
-
+    cli.addCommand ({ "--output-file|-o",
+                      "--output-file|-o <filename>",
+                      "Output file",
+                      "output file to write to.",
+                      nullptr});
 #if 0
-    /*cli.addCommand ({ "--file|-F",
-                      "--file|-F <filename>",
-                      "File to play or write to",
-                      "File to play or write to.",
-                      nullptr});*/
-
     app.addCommand ({ "--rate|-r",
                       "--rate|-r <sampling-rate-in-Hz>",
                       "Sampling rate in Hz.",
@@ -129,10 +127,7 @@ void defineCommandLineOptions(
                       [&app] (const auto& args) { app.setSamplingRate(args); }});
 
     //--gain|g
-    //--list-devices|l
     //--device|D
-    //--list-pcms|L
-    //sample format? see aplay
 #endif
 
 }
