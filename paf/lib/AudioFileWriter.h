@@ -71,6 +71,14 @@ public:
         return result;
     }
 
+    void close()
+    {
+        if (writer_ != nullptr) { writer_->flush(); }
+        if (fileOutputStream_ != nullptr) { fileOutputStream_->flush(); }
+        writer_.release();
+        fileOutputStream_.release();
+    }
+
     void makeThreadedWriter()
     {
         //threadedWriter_.reset(

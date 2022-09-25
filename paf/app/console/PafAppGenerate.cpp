@@ -50,7 +50,7 @@ generate(const juce::ArgumentList& args)
     paf::Generator generator(std::move(src));
 
     if (!option_.outputFile.isEmpty()) {
-        //
+        generateFile(generator, signalName);
     }
     else {
         generateSound(generator, signalName);
@@ -147,4 +147,6 @@ generateFile(paf::Generator& generator, const String& signalName)
     if (!ok) {
         printf("Error during writing generated signal in to file.\n");
     }
+
+    writer.close();
 }
