@@ -22,8 +22,10 @@ MainComponent::MainComponent()
     toggleLooping_.setButtonText("Loop");
     toggleLooping_.onClick = [this] { toggleLoopChanged(); };
 
-    addAndMakeVisible (&currentPositionLabel_);
+    addAndMakeVisible(&currentPositionLabel_);
     currentPositionLabel_.setText ("Stopped", juce::dontSendNotification);
+
+    addAndMakeVisible(&playerControl_);
 
     setSize(600, 400);
 
@@ -55,6 +57,11 @@ resized()
     buttonStop_.setBounds(10, 70, getWidth() - 20, 20);
     toggleLooping_.setBounds (10, 100, getWidth() - 20, 20);
     currentPositionLabel_.setBounds(10, 130, getWidth() - 20, 20);
+
+    auto area = getLocalBounds();
+
+    auto playerControlPanelHeight = 40;
+    playerControl_.setBounds(area.removeFromBottom(playerControlPanelHeight));
 }
 
 void

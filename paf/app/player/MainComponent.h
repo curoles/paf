@@ -3,6 +3,7 @@
 #include "JuceHeader.h"
 
 #include "AudioComponent.h"
+#include "PlayerControlPanel.h"
 
 //#include <juce_gui_extra/juce_gui_extra.h>
 
@@ -19,6 +20,8 @@ class MainComponent : public AudioComponent,
 
     juce::ToggleButton toggleLooping_;
     juce::Label currentPositionLabel_;
+
+    paf::PlayerControlPanel playerControl_;
 
     std::unique_ptr<juce::FileChooser> fileChooser_;
 

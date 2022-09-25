@@ -103,6 +103,7 @@ PlayerApp::MainWindow::MainWindow(juce::String name)
     setFullScreen (true);
    #else
     setResizable (true, true);
+    //setResizeLimits(300, 250, 10000, 10000);
     centreWithSize (getWidth(), getHeight());
    #endif
 

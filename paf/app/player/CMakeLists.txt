@@ -20,6 +20,7 @@ target_sources(PlayerApp
     PRIVATE
         Main.cpp
         MainComponent.cpp
+        PlayerControlPanel.cpp
 )
 
 # These definitions will be visible both to your code, and also the JUCE module code, so for new
